@@ -1,4 +1,3 @@
-# usercrud
 npm i -> to install dependencies
 npm i --D nodemon -> to install nodemon as dev dependency
 npm start -> to run the project
