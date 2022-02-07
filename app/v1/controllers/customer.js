@@ -1,4 +1,5 @@
 const sql = require("../config/db")();
+
 exports.create = (req, res) => {
   if (!req.body) {
     res.status(400).send({
