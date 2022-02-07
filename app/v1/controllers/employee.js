@@ -1,11 +1,16 @@
 const sql = require("../config/db")();
+const crypto = require('crypto');
 
 exports.create = (req, res) => {
+  const userDetails = req.body
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
     });
   }
+  userDetails.password = crypto.createHmac('sha256', secret)
+                       .update(req.body.password)
+                       .digest('hex');
   req.body.dob = Math.floor((new Date() - new Date(user.dob).getTime()) / 3.15576e+10);
   sql().getConnection((err,connect)=>{
     connect.beginTransaction((err)=>{

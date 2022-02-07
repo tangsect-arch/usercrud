@@ -2,10 +2,10 @@ const mysql = require("mysql2");
 const dbConfig = require("../config/config.js");
 
 var connection = mysql.createPool({
-  host: dbConfig.HOST,
-  user: dbConfig.USER,
-  password: dbConfig.PASSWORD,
-  database: dbConfig.DB
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DBV2
 });
 
 module.exports = connection;

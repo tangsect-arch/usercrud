@@ -1,9 +1,6 @@
 const crypto = require('crypto');
 exports.passwordEncrypt = (req, res) => {
-    console.log("llll")
-    const crypto = require('crypto');
-
-    const secret = 'abcdefg';
+    const secret = process.env.SECRET_CRYPTO;
     const hash = crypto.createHmac('sha256', secret)
                        .update('I love cupcakes')
                        .digest('hex');

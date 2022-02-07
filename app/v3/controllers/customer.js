@@ -5,10 +5,10 @@ const mysql = require('mysql2/promise');
 
 var pool = mysql.createPool({
   connectionLimit: 10,
-  host: dbConfig.HOST,
-  user: dbConfig.USER,
-  password: dbConfig.PASSWORD,
-  database: dbConfig.DB,
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DBV3,
   debug:false,
   waitForConnections: true,
   multipleStatements: true
@@ -50,7 +50,6 @@ exports.create = (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-  console.log("conn() ",conn()==pool)
   const connection = await pool.getConnection();
   //console.log("connection ",pool)
   await connection.beginTransaction();

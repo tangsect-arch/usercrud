@@ -1,5 +1,7 @@
 const express = require("express");
+const dotenv = require('dotenv');
 const app = express();
+dotenv.config();
 const customer = require("./app/v1/routes/customer");
 const employee = require("./app/v1/routes/employee");
 const userRouteV2 = require("./app/v2/routes/user");
