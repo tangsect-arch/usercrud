@@ -1,4 +1,5 @@
 const sql = require("../config/db")();
+
 exports.create = (req, res) => {
   if (!req.body) {
     res.status(400).send({
@@ -6,25 +7,41 @@ exports.create = (req, res) => {
     });
   }
   req.body.dob = Math.floor((new Date() - new Date(user.dob).getTime()) / 3.15576e+10);
-  let query = "BEGIN; INSERT INTO users (user_name, password, display_name, is_approved, email_id, mobile_number) values "+
-              " ( ?, ?, ?, ?, ?, ?); "+
+  sql().getConnection((err,connect)=>{
+    connect.beginTransaction((err)=>{
+      if(err)
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while creating the User."
+        });
+        let query = "BEGIN; INSERT INTO users (user_name, password, display_name, is_approved, email_id, mobile_number) values "+
+        " ( ?, ?, ?, ?, ?, ?); "+
 
-              " INSERT INTO employee (id, status, first_name, last_name, address, dob, age, employee_id, created_on) values "+
-              " (LAST_INSERT_ID(), ?, ?, ?, ?, ?, ?, now()); "+
+        " INSERT INTO employee (id, status, first_name, last_name, address, dob, age, employee_id, created_on) values "+
+        " (LAST_INSERT_ID(), ?, ?, ?, ?, ?, ?, now()); "+
 
-              " INSERT INTO user_role (user_id, role_id) values "+
-              " (LAST_INSERT_ID(), 3); COMMIT;"
-  let insertParams = [userDetails.username, userDetails.password, userDetails.displayName, 
-              userDetails.isApproved, userDetails.emailId, userDetails.mobileNumber, userDetails.status, 
-              userDetails.firstName, userDetails.lastName, userDetails.address, 
-              userDetails.dob, userDetails.age, userDetails.employeeId]
-  sql.query(query, insertParams, (err, data) => {
-    if (err)
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the User."
+        " INSERT INTO user_role (user_id, role_id) values "+
+        " (LAST_INSERT_ID(), 3); COMMIT;"
+      let insertParams = [userDetails.username, userDetails.password, userDetails.displayName, 
+        userDetails.isApproved, userDetails.emailId, userDetails.mobileNumber, userDetails.status, 
+        userDetails.firstName, userDetails.lastName, userDetails.address, 
+        userDetails.dob, userDetails.age, userDetails.employeeId]
+      connect.query(query, insertParams, (err, data) => {
+        if (err){
+          connect.rollback((error)=>{
+            res.status(500).send({
+              message:
+                err.message || "Some error occurred while creating the User."
+            });
+          });          
+        }
+        else {
+          connect.commit((err,success)=>{
+            res.send({message:"Data saved successfully"});
+          });          
+        }
       });
-    else res.send({message:"Data saved successfully"});
+    });    
   });
 };
 
