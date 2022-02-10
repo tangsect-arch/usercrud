@@ -1,19 +1,4 @@
-const { promisify } = require('util');
-const {sql, conn} = require("../config/db");
-const dbConfig = require("../config/config");
-const mysql = require('mysql2/promise');
-
-var pool = mysql.createPool({
-  connectionLimit: 10,
-  host: process.env.HOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  database: process.env.DBV3,
-  debug:false,
-  waitForConnections: true,
-  multipleStatements: true
-})
-
+const {sql, conn, pool} = require("../config/db");
 
 exports.create = (req, res) => {
   if (!req.body) {
@@ -50,21 +35,36 @@ exports.create = (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
+  console.log("req ", req.body)
   const connection = await pool.getConnection();
   //console.log("connection ",pool)
   await connection.beginTransaction();
   try{    
     if (!req.body) {
-      await res.status(400).send({
+      res.status(400).send({
         message: "Content can not be empty!"
       });
     }
-    let queryString = " insert into user (name, email, password) values ('test1', 'test1@mail.com', 'password'); "+
-                " insert into customer (id, first_name, last_name, dob, address) values (last_insert_id(), 'test1', 'test01', '',''); "
+    let phrgx = /^\d{10}$/;
+    let emailrgx = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    if (!req.body.emailId || !req.body.emailId.toLowerCase().match(emailrgx)) {
+      res.status(400).send({
+        message: "Invalid email id!"
+      });
+    }
+    else if (!req.body.mobileNumber || !req.body.mobileNumber.match(phrgx)) {
+      res.status(400).send({
+        message: "Invalid mobile number!"
+      });
+    }
+    else{
+      let queryString = " insert into user (name, email, password) values ('test1', 'test1@mail.com', 'password'); "+
+                  " insert into customer (id, first_name, last_name, dob, address) values (last_insert_id(), 'test1', 'test01', '1991/01/01','address'); "
 
-    let result = await connection.query(queryString);
-    await connection.commit();
-    res.send({message:pool});
+      let result = await connection.query(queryString);
+      await connection.commit();
+      res.send({message:"Customer details saved successfully"});
+    }
   }
   catch(e){
     await connection.rollback();
